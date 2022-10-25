@@ -38,12 +38,12 @@ app.get('/pet', (request, response, next) => {
   }
 });
 
-class Pet {
-  constructor(petObj){
-    this.name = petObj.name,
-    this.breed = petObj.breed,
-  }
-}
+// class Pet {
+//   constructor(petObj){
+//     this.name = petObj.name,
+//     this.breed = petObj.breed,
+//   });
+// }
 
 app.get('*', (request, response) => {
   response.status(404).send('This route does not exist!');
