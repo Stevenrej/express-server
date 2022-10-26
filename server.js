@@ -1,14 +1,15 @@
 'use strict';
 
+
 console.log('hi!');
 
 const { application, request, response } = require('express');
 // ***** REQUIRES ******
+
 const express = require('express');
 require('dotenv').config();
-let data = require('./data/weather.json');
 const cors = require('cors');
-
+const axios = require('axios');
 const app = express();
 
 app.use(cors());
@@ -23,14 +24,18 @@ app.get('/', (request, response) => {
 });
 
 
-app.get('/weather', (request, response, next) => {
-  try {
-    let city_name = request.query.city_name.toLowerCase();
-    let lat = Math.floor(request.query.lat);
-    let lon = Math.floor(request.query.lon);
-    let dataToGroom = data.find(weather => weather.city_name.toLowerCase() === city_name && Math.floor(weather.lon) === lon && Math.floor(weather.lat) === lat);
+app.get('/weather', async (request, response, next) => {
+  let lat = request.query.lat;
+  let lon = request.query.lon;
 
-    let arrData = dataToGroom.data.map((element) => {
+  try {
+    let apiUrl = `http://api.weatherbit.io/v2.0/forecast/daily?key=${process.env.WEATHER_API_KEY}&units=I&lat=${lat}&lon=${lon}`;
+
+    let apiData = await axios.get(apiUrl);
+
+
+
+    let arrData = apiData.data.data.map((element) => {
       return new Forecast(element);
     });
     response.status(200).send(arrData);
@@ -45,9 +50,43 @@ class Forecast {
     this.low = weatherObj.low_temp;
     this.high = weatherObj.high_temp;
     this.description = weatherObj.weather.description;
-    console.log(this.low);
   }
 }
+
+app.get('/movie', async (request, response, next) => {
+  let cityName = request.query.city_name;
+
+
+
+  try {
+    let apiMovUrl = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${cityName}&language=en-US&page=1&include_adult=false`;
+
+
+
+    let apiDataM = await axios.get(apiMovUrl);
+
+    console.log(apiDataM.data.results);
+    let arrData = apiDataM.data.results.map((element) => {
+      return new Movie(element);
+    });
+    response.status(200).send(arrData);
+  } catch (error) {
+    next(error);
+  }
+});
+
+class Movie {
+  constructor(movieObj) {
+    this.title = movieObj.title;
+    this.overview = movieObj.overview;
+    this.averageVote = movieObj.vote_average;
+    this.totalVote = movieObj.vote_count;
+    this.imageUrl = movieObj.poster_path;
+    this.popularity = movieObj.popularity;
+    this.realeasedOn = movieObj.release_date;
+  }
+}
+
 
 
 
@@ -66,4 +105,6 @@ app.use((error, request, response, next) => {
 
 app.listen(PORT, () => console.log(`we are up and running on port ${PORT}`));
 
-
+// **** IF NEEDED ********************************
+// let city_name = request.query.city_name.toLowerCase();
+// weather.city_name.toLowerCase() === city_name &&
