@@ -21,22 +21,6 @@ async function getWeather(request, response, next){
   }
 }
 
-// function getWeatherWithChain (request, res, next) {
-//   let lat = request.query.lat;
-//   let lon = request.query.lon;
-
-//   let baseUrl = 'http://api.weatherbit.io/v2.0/forecast/daily';
-//   let params = {
-//     client_id: process.env.WEATHER_API_KEY,
-//     query1: lat,
-//     query2: lon,
-//   };
-//   axios.get(baseUrl, { params })
-//     .then(weatherResult => weatherResult.data.data.map(element => new Forecast(element)))
-//     .then(groomData => res.status(200).send(groomData))
-//     .catch(error => next(error));
-
-// }
 
 class Forecast {
   constructor(weatherObj) {
